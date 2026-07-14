@@ -1,0 +1,150 @@
+:root {
+  /* Neighbor palette */
+  --lav: #dabef9; /* lavender */
+  --sky: #00c0ff; /* bright blue */
+  --teal: #1981a1; /* teal */
+  --slate: #354a53; /* dark slate */
+
+  /* neutral charcoal surfaces */
+  --bg: #1d1e21;
+  --bg-panel: #26272b;
+  --bg-panel-2: #303137;
+  --bg-cell: #212226;
+  --border: #3a3c42;
+
+  /* non-white whites */
+  --text: #ececef;
+  --text-dim: #9a9ba3;
+
+  /* accents — all from the palette */
+  --accent: #00c0ff; /* primary highlight (sky) */
+  --accent-2: #dabef9; /* secondary highlight (lavender) */
+  --star: #dabef9; /* answer within interval */
+  --good: #1981a1; /* positive (teal) */
+
+  /* semantic danger (no red in the palette — used for skull / warnings only) */
+  --skull: #ff6b7a;
+  --danger: #ff6b7a;
+
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  --radius: 12px;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  /* invisible scrollbars (Firefox / IE) */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+/* invisible scrollbars (WebKit / Chromium) */
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+::selection {
+  background: rgba(0, 192, 255, 0.32);
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: radial-gradient(1200px 600px at 50% -10%, #2a2b30 0%, var(--bg) 55%);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg-panel-2);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.05s ease;
+}
+button:hover {
+  background: #3a3b42;
+}
+button:active {
+  transform: translateY(1px);
+}
+/* primary action — sky */
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #06222b;
+  font-weight: 600;
+}
+button.primary:hover {
+  background: #4fd2ff;
+}
+button.ghost {
+  background: transparent;
+}
+button.danger {
+  border-color: rgba(255, 107, 122, 0.45);
+  color: var(--danger);
+}
+button.danger:hover {
+  background: rgba(255, 107, 122, 0.12);
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+input[type='text'],
+input[type='number'],
+select {
+  font-family: inherit;
+  background: var(--bg-cell);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  width: 100%;
+}
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 192, 255, 0.22);
+}
+select option {
+  background: var(--bg-panel);
+  color: var(--text);
+}
+
+label {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.muted {
+  color: var(--text-dim);
+}
+
+.app-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 20px 80px;
+}
