@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { state, cellSubmissions, addSubmission } from '../store/useStore.js'
 import { toNum } from '../scoring.js'
+import NumberInput from './NumberInput.vue'
 
 // Minimal quick-entry: ask only for low + high, then Save. The submission limit
 // is an AGGREGATE budget per team (total across all questions), so teams choose
@@ -92,22 +93,18 @@ function save() {
       <div v-if="!atMax" class="fields">
         <label class="field">
           <span>Low (min)</span>
-          <input
+          <NumberInput
             ref="lowInput"
-            type="text"
-            inputmode="decimal"
             v-model="low"
-            placeholder="e.g. 1000"
+            placeholder="e.g. 1,000"
             :class="{ invalid: touched && !valid }"
           />
         </label>
         <label class="field">
           <span>High (max)</span>
-          <input
-            type="text"
-            inputmode="decimal"
+          <NumberInput
             v-model="high"
-            placeholder="e.g. 5000"
+            placeholder="e.g. 5,000"
             :class="{ invalid: touched && !valid }"
           />
         </label>

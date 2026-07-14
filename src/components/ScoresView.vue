@@ -7,6 +7,7 @@ import LeaderSheet from './LeaderSheet.vue'
 import SettingsBar from './SettingsBar.vue'
 import SubmissionHistory from './SubmissionHistory.vue'
 import GmSection from './GmSection.vue'
+import NumberInput from './NumberInput.vue'
 
 // The private Game Master tab. Everything the GM needs — timer, setup, interval
 // entry, the answer key, the editable submission history and live scores —
@@ -71,7 +72,7 @@ const intervalsSubtitle = computed(
       <div class="answers">
         <div v-for="q in questions" :key="q" class="answer-field">
           <label>Q{{ q + 1 }}</label>
-          <input type="text" inputmode="decimal" v-model="state.actuals[q]" placeholder="actual value" />
+          <NumberInput v-model="state.actuals[q]" placeholder="actual value" />
         </div>
       </div>
     </GmSection>

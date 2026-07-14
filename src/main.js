@@ -23,6 +23,7 @@ import {
   faClockRotateLeft,
   faCircleChevronDown,
   faClock,
+  faDownload,
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
@@ -42,7 +43,8 @@ library.add(
   faKey,
   faClockRotateLeft,
   faCircleChevronDown,
-  faClock
+  faClock,
+  faDownload
 )
 
 createApp(App).component('font-awesome-icon', FontAwesomeIcon).mount('#app')

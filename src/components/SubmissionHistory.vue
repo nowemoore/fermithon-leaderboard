@@ -1,7 +1,8 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { state, updateSubmission, removeSubmission } from '../store/useStore.js'
 import { gradeSubmission } from '../scoring.js'
+import NumberInput from './NumberInput.vue'
 
 // Every submission, with its attempt number within its cell derived on the fly.
 // Because the grid, counts and scores all read from state.submissions, editing
@@ -33,12 +34,94 @@ function setQ(id, val) {
 function setT(id, val) {
   updateSubmission(id, { t: Number(val) })
 }
+
+// ---- filters: by team and by question -------------------------------------
+const fTeam = ref('all')
+const fQ = ref('all')
+const hasFilters = computed(() => fTeam.value !== 'all' || fQ.value !== 'all')
+function clearFilters() {
+  fTeam.value = 'all'
+  fQ.value = 'all'
+}
+
+const filtered = computed(() =>
+  rows.value.filter((r) => {
+    if (fTeam.value !== 'all' && r.t !== Number(fTeam.value)) return false
+    if (fQ.value !== 'all' && r.q !== Number(fQ.value)) return false
+    return true
+  })
+)
+
+// ---- CSV export (exports exactly what the filters are showing) -------------
+function csvCell(v) {
+  const s = String(v ?? '')
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+}
+function downloadCsv() {
+  const header = ['Question', 'Team', 'Low', 'High', 'Attempt', 'Final', 'Actual', 'Result']
+  const lines = [header.join(',')]
+  filtered.value.forEach((r) => {
+    const g = result(r)
+    lines.push(
+      [
+        `Q${r.q + 1}`,
+        teams.value[r.t] || `Team ${r.t + 1}`,
+        r.min, // raw, unformatted — spreadsheet-friendly
+        r.max,
+        `${r.attempt}/${r.total}`,
+        r.attempt === r.total ? 'yes' : 'no',
+        state.actuals[r.q] ?? '',
+        g === 'within' || g === 'outside' ? g : '',
+      ]
+        .map(csvCell)
+        .join(',')
+    )
+  })
+
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'fermithon-submissions.csv'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
 </script>
 
 <template>
   <div class="history">
+    <div class="toolbar">
+      <div class="filters">
+        <select v-model="fTeam" aria-label="Filter by team">
+          <option value="all">All teams</option>
+          <option v-for="(name, i) in teams" :key="i" :value="i">
+            {{ name || `Team ${i + 1}` }}
+          </option>
+        </select>
+        <select v-model="fQ" aria-label="Filter by question">
+          <option value="all">All questions</option>
+          <option v-for="n in questions" :key="n" :value="n - 1">Q{{ n }}</option>
+        </select>
+        <button v-if="hasFilters" class="ghost" @click="clearFilters">
+          <font-awesome-icon :icon="['fas', 'xmark']" /> Clear
+        </button>
+      </div>
+
+      <div class="actions">
+        <span class="muted count">{{ filtered.length }} of {{ rows.length }}</span>
+        <button class="ghost" @click="downloadCsv" :disabled="!filtered.length">
+          <font-awesome-icon :icon="['fas', 'download']" /> CSV
+        </button>
+      </div>
+    </div>
+
     <div v-if="!rows.length" class="empty muted">
       No submissions yet. Click a cell in the grid above to add one.
+    </div>
+    <div v-else-if="!filtered.length" class="empty muted">
+      No submissions match these filters.
     </div>
 
     <div v-else class="scroll">
@@ -55,7 +138,7 @@ function setT(id, val) {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="r in rows" :key="r.id">
+          <tr v-for="r in filtered" :key="r.id">
             <td>
               <select :value="r.q + 1" @change="setQ(r.id, $event.target.value)">
                 <option v-for="n in questions" :key="n" :value="n">Q{{ n }}</option>
@@ -69,10 +152,16 @@ function setT(id, val) {
               </select>
             </td>
             <td>
-              <input type="text" inputmode="decimal" :value="r.min" @input="updateSubmission(r.id, { min: $event.target.value })" />
+              <NumberInput
+                :model-value="r.min"
+                @update:model-value="updateSubmission(r.id, { min: $event })"
+              />
             </td>
             <td>
-              <input type="text" inputmode="decimal" :value="r.max" @input="updateSubmission(r.id, { max: $event.target.value })" />
+              <NumberInput
+                :model-value="r.max"
+                @update:model-value="updateSubmission(r.id, { max: $event })"
+              />
             </td>
             <td class="center attempt">
               {{ r.attempt }}/{{ r.total }}
@@ -96,6 +185,29 @@ function setT(id, val) {
 </template>
 
 <style scoped>
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.filters,
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.filters select {
+  width: auto;
+  min-width: 130px;
+}
+.count {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
 .empty {
   padding: 8px 2px;
 }
